@@ -17,7 +17,9 @@ How to run the examples
 
 ```
 $ git clone https://github.com/SoftInstigate/restheart-customization-examples.git
+$ cd restheart-customization-examples
 $ mvn package
+$ cp <RESTHEART_DIR>/restheart.jar .
 $ java -cp restheart.jar:target/restheart-customization-examples-1.0-SNAPSHOT.jar org.restheart.Bootstrapper etc/restheart.yml 
 ```
 
