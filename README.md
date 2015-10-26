@@ -1,7 +1,7 @@
-[RESTHeart](restheart.org) Customization Examples
+RESTHeart Customization Examples
 =========
 
-> RESTHeart - The leading Web API for MongoDB. 
+> [RESTHeart](restheart.org) - The leading Web API for MongoDB. 
 > 
 > &nbsp;&nbsp;Done with **love** by the [SoftInstigate Team](http://www.softinstigate.com)
 
@@ -16,7 +16,7 @@ How to run the examples
 ----
 
 ```
-$ git clone
+$ git clone https://github.com/SoftInstigate/restheart-customization-examples.git
 $ mvn package
 $ java -cp restheart.jar:target/restheart-customization-examples-1.0-SNAPSHOT.jar org.restheart.Bootstrapper etc/restheart.yml 
 ```
