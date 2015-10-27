@@ -10,7 +10,7 @@ The following customization examples are included:
 ----
 * **ExampleIdentityManager** an Identity Manager, see [documentation](https://softinstigate.atlassian.net/wiki/x/HADM)
 * **ExampleAccessManager** an Access Manager, see [documentation](https://softinstigate.atlassian.net/wiki/x/HgDM)
-* **ExampleAggregateHandler** an xample Application Logic Handler, see [documentation](https://softinstigate.atlassian.net/wiki/x/IoCw)
+* **ExampleAggregateHandler** a simple Application Logic Handler that executes an aggregation query, see [documentation](https://softinstigate.atlassian.net/wiki/x/IoCw)
 
 How to run the examples
 ----
@@ -61,9 +61,9 @@ This IDM verifies the password to be the flipped id string, i.e. id="username" =
 ExampleAccessManager
 ---
 
-This Access Manager gives read access to the /test/band collection and /_logic/aggregate to any authenticated user
+This Access Manager gives read access to the /test/band collection and /_logic/aggregate to any authenticated user. It also gives write access to user "admin"
 
 ExampleAggregateHandler
 ---
 
-This custom Hanlder is boud to /_logic/aggregate URI. It execute a simply aggregation query, returning the bands with their number of published albums.
+This custom Hanlder is boud to /_logic/aggregate URI. It execute a simply aggregation query that returs the count of ablums published by bands.
