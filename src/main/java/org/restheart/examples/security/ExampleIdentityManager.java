@@ -73,14 +73,12 @@ public class ExampleIdentityManager implements IdentityManager {
     }
 
     @Override
-    public Account verify(Account account
-    ) {
+    public Account verify(Account account) {
         return account;
     }
 
     @Override
-    public Account verify(Credential credential
-    ) {
+    public Account verify(Credential credential) {
         // Auto-generated method stub
         return null;
     }
