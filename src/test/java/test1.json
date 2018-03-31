@@ -1,0 +1,18 @@
+[
+    {
+        "$unwind": "$albums"
+    },
+    {
+        "$group": {
+            "_id": "$_id",
+            "count": {
+                "$sum": 1
+            }
+        }
+    },
+    {
+        "$project": {
+            "albums": "$count"
+        }
+    }
+]
