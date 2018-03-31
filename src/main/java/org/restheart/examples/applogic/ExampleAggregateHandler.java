@@ -17,29 +17,30 @@
  */
 package org.restheart.examples.applogic;
 
-import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-import org.restheart.handlers.PipedHttpHandler;
-import org.restheart.handlers.RequestContext;
-import org.restheart.handlers.RequestContext.METHOD;
-import org.restheart.utils.HttpStatus;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCollection;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
+import org.bson.Document;
 import org.restheart.cache.Cache;
 import org.restheart.cache.CacheFactory;
 import org.restheart.cache.LoadingCache;
 import org.restheart.db.MongoDBClientSingleton;
 import org.restheart.hal.Representation;
+import org.restheart.handlers.PipedHttpHandler;
+import org.restheart.handlers.RequestContext;
+import org.restheart.handlers.RequestContext.METHOD;
 import org.restheart.handlers.applicationlogic.ApplicationLogicHandler;
+import org.restheart.utils.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +49,7 @@ import org.slf4j.LoggerFactory;
  * @author Andrea Di Cesare <andrea@softinstigate.com>
  */
 public class ExampleAggregateHandler extends ApplicationLogicHandler {
+
     private static final Logger LOGGER = LoggerFactory.getLogger("org.restheart.example.AggregateHandler");
 
     private static final MongoClient client;
@@ -56,25 +58,16 @@ public class ExampleAggregateHandler extends ApplicationLogicHandler {
     public static final String DB = "test";
     public static final String COLL = "bands";
 
-    private static final List<DBObject> AGGREGATION_QUERY;
+    private static final List<Document> AGGREGATION_QUERY;
 
     static {
         client = MongoDBClientSingleton.getInstance().getClient();
 
         AGGREGATION_QUERY = Arrays.asList(
-                BasicDBObjectBuilder.start()
-                .add("$unwind", "$albums") // unwind stage
-                .get(),
-                BasicDBObjectBuilder.start()
-                .push("$group") // group stage
-                .add("_id", "$_id")
-                .push("count")
-                .add("$sum", 1)
-                .get(),
-                BasicDBObjectBuilder.start()
-                .push("$project") // $project stage
-                .add("albums", "$count")
-                .get()
+                new Document("$unwind", "$albums"),
+                new Document("$group", new Document("_id", "$_id")
+                        .append("count", new Document("$sum", 1))),
+                new Document("$project", new Document("albums", "$count"))
         );
 
         LOGGER.debug("query {}", AGGREGATION_QUERY.toString());
@@ -82,15 +75,15 @@ public class ExampleAggregateHandler extends ApplicationLogicHandler {
         // a 5 seconds cache
         cache = CacheFactory.createLocalLoadingCache(1, Cache.EXPIRE_POLICY.AFTER_WRITE, 5 * 1000, (String key) -> {
 
-            DBCollection coll = client.getDB(DB).getCollection(COLL);
+            MongoCollection<Document> coll = client.getDatabase(DB).getCollection(COLL);
 
-            AggregationOutput agout = coll.aggregate(AGGREGATION_QUERY);
+            AggregateIterable<Document> agout = coll.aggregate(AGGREGATION_QUERY);
 
             // wrap result in a BasicDBList
             BasicDBList ret = new BasicDBList();
-            agout.results().forEach(dbobj -> {
-                ret.add(dbobj);
-            });
+            for (Document document : agout) {
+                ret.add(document);
+            }
 
             return ret;
         });
@@ -123,17 +116,16 @@ public class ExampleAggregateHandler extends ApplicationLogicHandler {
 
                 Representation rep = new Representation("/_logic/aggregate");
 
-                BasicDBObject properties = new BasicDBObject();
-                
-                results.forEach( res -> { 
+                BsonDocument properties = new BsonDocument();
+
+                results.forEach(res -> {
                     DBObject _res = (DBObject) res;
-                    
-                    properties.append((String) _res.get("_id"), _res.get("albums")); 
+                    properties.append((String) _res.get("_id"), (BsonValue) _res.get("albums"));
                 });
-                
+
                 rep.addProperties(properties);
 
-                exchange.setResponseCode(HttpStatus.SC_OK);
+                exchange.setStatusCode(HttpStatus.SC_OK);
 
                 exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, Representation.JSON_MEDIA_TYPE);
                 exchange.getResponseSender().send(rep.toString());
@@ -142,7 +134,7 @@ public class ExampleAggregateHandler extends ApplicationLogicHandler {
             }
         } else {
             LOGGER.debug("request verb is not GET => NOT ALLOWED");
-            exchange.setResponseCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
+            exchange.setStatusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
             exchange.endExchange();
         }
     }
