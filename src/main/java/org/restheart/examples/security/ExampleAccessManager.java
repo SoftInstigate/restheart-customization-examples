@@ -37,9 +37,30 @@ import org.slf4j.LoggerFactory;
  * @author Andrea Di Cesare <andrea@softinstigate.com>
  */
 public class ExampleAccessManager implements AccessManager {
+
     private static final Logger LOGGER = LoggerFactory.getLogger("org.restheart.examples.security.ExampleAccessManager");
 
     public static final String AGGREGATE_URI = "/_logic/aggregate";
+
+    private static METHOD selectRequestMethod(HttpString _method) {
+        METHOD method;
+        if (Methods.GET.equals(_method)) {
+            method = METHOD.GET;
+        } else if (Methods.POST.equals(_method)) {
+            method = METHOD.POST;
+        } else if (Methods.PUT.equals(_method)) {
+            method = METHOD.PUT;
+        } else if (Methods.DELETE.equals(_method)) {
+            method = METHOD.DELETE;
+        } else if (PATCH.equals(_method.toString())) {
+            method = METHOD.PATCH;
+        } else if (Methods.OPTIONS.equals(_method)) {
+            method = METHOD.OPTIONS;
+        } else {
+            method = METHOD.OTHER;
+        }
+        return method;
+    }
 
     public ExampleAccessManager(Map<String, Object> arguments) {
         // args are ignored
@@ -132,24 +153,5 @@ public class ExampleAccessManager implements AccessManager {
         // always require authentication
         return true;
     }
-    
-    private static METHOD selectRequestMethod(HttpString _method) {
-        METHOD method;
-        if (Methods.GET.equals(_method)) {
-            method = METHOD.GET;
-        } else if (Methods.POST.equals(_method)) {
-            method = METHOD.POST;
-        } else if (Methods.PUT.equals(_method)) {
-            method = METHOD.PUT;
-        } else if (Methods.DELETE.equals(_method)) {
-            method = METHOD.DELETE;
-        } else if (PATCH.equals(_method.toString())) {
-            method = METHOD.PATCH;
-        } else if (Methods.OPTIONS.equals(_method)) {
-            method = METHOD.OPTIONS;
-        } else {
-            method = METHOD.OTHER;
-        }
-        return method;
-    }
+
 }

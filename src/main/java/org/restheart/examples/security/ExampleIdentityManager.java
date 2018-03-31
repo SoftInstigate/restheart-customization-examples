@@ -33,13 +33,6 @@ import org.restheart.security.impl.SimpleAccount;
  * @author Andrea Di Cesare <andrea@softinstigate.com>
  */
 public class ExampleIdentityManager implements IdentityManager {
-    public enum ROLE {
-        ADMIN, USER
-    };
-
-    public ExampleIdentityManager(Map<String, Object> arguments) {
-        // args are ignored
-    }
 
     public static final String ADMIN_ID = "admin";
 
@@ -49,6 +42,10 @@ public class ExampleIdentityManager implements IdentityManager {
     static {
         NORMAL_USER_ROLES = Sets.newHashSet(ROLE.USER.toString());
         ADMIN_ROLES = Sets.newHashSet(ROLE.ADMIN.toString());
+    }
+
+    public ExampleIdentityManager(Map<String, Object> arguments) {
+        // args are ignored
     }
 
     @Override
@@ -81,5 +78,9 @@ public class ExampleIdentityManager implements IdentityManager {
     public Account verify(Credential credential) {
         // Auto-generated method stub
         return null;
+    }
+
+    public enum ROLE {
+        ADMIN, USER
     }
 }
